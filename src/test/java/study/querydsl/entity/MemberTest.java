@@ -1,5 +1,7 @@
 package study.querydsl.entity;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,8 +20,11 @@ class MemberTest {
     @Autowired
     EntityManager em;
 
-    @Test
-    public void testEntity() {
+    JPAQueryFactory queryFactory;
+
+    @BeforeEach
+    void setUp() {
+        queryFactory = new JPAQueryFactory(em);
         Team teamA = new Team("TeamA");
         Team teamB = new Team("TeamB");
         em.persist(teamA);
@@ -38,13 +43,42 @@ class MemberTest {
         // 초기화
         em.flush();
         em.clear();
+    }
 
-        List<Team> teams = em.createQuery("Select t From Team t", Team.class)
+    @Test
+    public void testEntity() {
+        List<Team> teams = em.createQuery("select t from Team t", Team.class)
                 .getResultList();
         List<Member> members = em.createQuery("select m from Member m", Member.class)
                 .getResultList();
 
         assertThat(teams.size()).isEqualTo(2);
         assertThat(members.size()).isEqualTo(4);
+    }
+
+    @Test
+    public void startJPQL() {
+        // member1을 찾아라.
+        String qlString =
+                "select m from Member m " +
+                "where m.username = :username";
+        Member findMember = em.createQuery(qlString, Member.class)
+                .setParameter("username", "member1")
+                .getSingleResult();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void startQuerydsl() {
+        QMember m = new QMember("m");
+
+        Member findMember = queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("member1")) // 파라미터 바인딩 처리
+                .fetchOne();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 }
