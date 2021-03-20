@@ -462,4 +462,33 @@ public class QuerydslBasicTest {
 
         assertThat(result).containsExactly("member1_10");
     }
+
+    @Test
+    public void simpleProjection() {
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member)
+                .fetch();
+
+        for (Member m : result) {
+            System.out.println("m = " + m);
+        }
+
+        assertThat(result).size().isEqualTo(4);
+    }
+
+    @Test
+    public void tupleProjection() {
+        List<Tuple> result = queryFactory
+                .select(member.username, member.age)
+                .from(member)
+                .fetch();
+
+        for (Tuple tuple : result) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("username = " + username);
+            System.out.println("age = " + age);
+        }
+    }
 }
