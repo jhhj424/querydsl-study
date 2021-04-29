@@ -678,6 +678,8 @@ public class QuerydslBasicTest {
 
         em.flush();
         em.clear();
+
+        assertThat(count).isEqualTo(2);
     }
 
     // 수식 연산
@@ -687,6 +689,8 @@ public class QuerydslBasicTest {
                 .update(member)
                 .set(member.age, member.age.add(1))
                 .execute();
+
+        assertThat(count).isEqualTo(4);
     }
 
     // 벌크 삭제
@@ -696,5 +700,7 @@ public class QuerydslBasicTest {
                 .delete(member)
                 .where(member.age.gt(18))
                 .execute();
+
+        assertThat(count).isEqualTo(4);
     }
 }
