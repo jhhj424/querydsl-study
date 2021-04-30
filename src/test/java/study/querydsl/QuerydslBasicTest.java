@@ -701,7 +701,7 @@ public class QuerydslBasicTest {
                 .where(member.age.gt(18))
                 .execute();
 
-        assertThat(count).isEqualTo(4);
+        assertThat(count).isEqualTo(3);
     }
 
     // SQL function 호출 : replace 예제
